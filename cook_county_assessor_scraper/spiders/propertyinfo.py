@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from scrapy.contrib.spiders import CSVFeedSpider
+from scrapy.spiders import Spider
 from collections import OrderedDict
 from cook_county_assessor_scraper.items import Property
 
-class PropertyinfoSpider(CSVFeedSpider):
+class PropertyinfoSpider(Spider):
     headers = ['pin']
-    name = "assessor"
+    name = "propertyinfo"
     allowed_domains = ["cookcountyassessor.com"]
-    start_urls = [
-	    "http://chicagocityscape.com/scrapy/batch1.csv"
-    ]
     
-    state = OrderedDict()
+    start_urls = []
+    f = open('../cook_pins_clip.csv', "r")
+    for pin in f:
+        pin = pin.strip()
+        start_urls.append("http://www.cookcountyassessor.com/Property.aspx?mode=details&pin=%s" %(pin))
 
-    def parse_row(self, response, row):
-        pin = row['pin']
-        return scrapy.Request('http://www.cookcountyassessor.com/Property.aspx?mode=details&pin='+pin, callback=self.parse_pin)
+    state = OrderedDict()
 
     def extract_with_prefix(self, response, suffix, inner_part=''):
         ext = response.xpath('//span[@id="ctl00_phArticle_ctlPropertyDetails_{}"]{}/text()'.format(suffix, inner_part))
@@ -25,7 +24,8 @@ class PropertyinfoSpider(CSVFeedSpider):
         else:
             return None
 
-    def parse_pin(self, response):
+    def parse(self, response):
+        print(response)
         if self.extract_with_prefix(response, 'resultsNotFoundPanel'):
             yield None
 
