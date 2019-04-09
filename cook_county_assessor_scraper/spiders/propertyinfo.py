@@ -10,7 +10,9 @@ class PropertyinfoSpider(Spider):
     allowed_domains = ["cookcountyassessor.com"]
     
     start_urls = []
-    f = open('../cook_pins_clip.csv', "r")
+
+    # This file should have one pin per line
+    f = open('../cook_pins.csv', "r")
     for pin in f:
         pin = pin.strip()
         start_urls.append("http://www.cookcountyassessor.com/Property.aspx?mode=details&pin=%s" %(pin))
